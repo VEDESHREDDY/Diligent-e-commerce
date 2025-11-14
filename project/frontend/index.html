@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diligent Commerce Insights</title>
+  <style>
+    :root {
+      font-family: Inter, Segoe UI, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      --bg-primary: #f5f7fa;
+      --bg-card: #fff;
+      --text-primary: #1f2933;
+      --text-muted: #6c7a89;
+      --border-color: #e4e7ec;
+      --shadow: rgba(15, 23, 42, 0.08);
+      --pill-bg: #eff6ff;
+      --pill-text: #1d4ed8;
+      --error-border: #f97316;
+      --error-bg: #fff7ed;
+      --error-text: #9c4221;
+      color: var(--text-primary);
+      background: var(--bg-primary);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    [data-theme="dark"] {
+      --bg-primary: #0f172a;
+      --bg-card: #1e293b;
+      --text-primary: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --shadow: rgba(0, 0, 0, 0.3);
+      --pill-bg: #1e3a8a;
+      --pill-text: #93c5fd;
+      --error-border: #f97316;
+      --error-bg: #451a03;
+      --error-text: #fdba74;
+    }
+    body {
+      margin: 0;
+      padding: 2rem;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    header {
+      max-width: 960px;
+      margin: 0 auto 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .header-content {
+      flex: 1;
+    }
+    h1 {
+      margin: 0 0 0.5rem;
+    }
+    .theme-toggle {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+    .theme-toggle:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+    .theme-toggle:active {
+      transform: translateY(0);
+    }
+    .card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 35px var(--shadow);
+      margin-bottom: 1.5rem;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      text-align: left;
+      padding: 0.35rem 0.25rem;
+      border-bottom: 1px solid var(--border-color);
+      transition: border-color 0.3s ease;
+    }
+    th {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+    .pill {
+      background: var(--pill-bg);
+      color: var(--pill-text);
+      border-radius: 999px;
+      padding: 0.25rem 0.8rem;
+      font-size: 0.85rem;
+      display: inline-block;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .status-pass { color: #10b981; }
+    [data-theme="dark"] .status-pass { color: #34d399; }
+    .status-warn { color: #f59e0b; }
+    [data-theme="dark"] .status-warn { color: #fbbf24; }
+    .cohort-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.35rem 0;
+      border-bottom: 1px dashed var(--border-color);
+      font-size: 0.92rem;
+      transition: border-color 0.3s ease;
+    }
+    .cohort-row:last-child { border-bottom: none; }
+    .muted { color: var(--text-muted); font-size: 0.9rem; }
+    .error {
+      border: 1px solid var(--error-border);
+      background: var(--error-bg);
+      color: var(--error-text);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+    }
+    code {
+      background: var(--pill-bg);
+      color: var(--pill-text);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.9em;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    @media (max-width: 640px) {
+      body { padding: 1rem; }
+      header {
+        flex-direction: column;
+      }
+      .theme-toggle {
+        align-self: flex-end;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Diligent Commerce Dashboard</h1>
+      <p class="muted">Lightweight frontend that hydrates from <code>report.json</code> and <code>query_result.json</code>. Regenerate data, ingest, report, and query before refreshing.</p>
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">🌙 Dark</button>
+  </header>
+
+  <main id="app">
+    <div id="error" class="error" style="display:none;"></div>
+
+    <section class="card" id="counts">
+      <h2>Table Row Counts</h2>
+      <div class="grid" id="counts-grid"></div>
+    </section>
+
+    <section class="card" id="validations">
+      <h2>Integrity Checks</h2>
+      <div id="validations-list"></div>
+    </section>
+
+    <section class="card" id="top-products">
+      <h2>Top Products by Revenue</h2>
+      <table>
+        <thead>
+          <tr><th>Product</th><th>Revenue</th></tr>
+        </thead>
+        <tbody id="products-body"></tbody>
+      </table>
+    </section>
+
+    <section class="card" id="high-value">
+      <h2>High Value Customers</h2>
+      <table>
+        <thead>
+          <tr><th>Customer</th><th>Segment</th><th>Revenue</th></tr>
+        </thead>
+        <tbody id="customers-body"></tbody>
+      </table>
+    </section>
+
+    <section class="card" id="cohorts">
+      <h2>Cohort Lifetime Value</h2>
+      <div id="cohort-list"></div>
+    </section>
+
+    <section class="card" id="anomalies">
+      <h2>Payment Anomalies</h2>
+      <table>
+        <thead>
+          <tr><th>Order</th><th>User</th><th>Status</th><th>Amount</th></tr>
+        </thead>
+        <tbody id="anomalies-body"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    // Theme management
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      const root = document.documentElement;
+      const toggleBtn = document.getElementById('themeToggle');
+      
+      if (savedTheme === 'dark') {
+        root.setAttribute('data-theme', 'dark');
+        toggleBtn.textContent = '☀️ Light';
+      } else {
+        root.removeAttribute('data-theme');
+        toggleBtn.textContent = '🌙 Dark';
+      }
+    }
+
+    function toggleTheme() {
+      const root = document.documentElement;
+      const toggleBtn = document.getElementById('themeToggle');
+      const isDark = root.getAttribute('data-theme') === 'dark';
+      
+      if (isDark) {
+        root.removeAttribute('data-theme');
+        toggleBtn.textContent = '🌙 Dark';
+        localStorage.setItem('theme', 'light');
+      } else {
+        root.setAttribute('data-theme', 'dark');
+        toggleBtn.textContent = '☀️ Light';
+        localStorage.setItem('theme', 'dark');
+      }
+    }
+
+    // Initialize theme on load
+    initTheme();
+    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
+    async function loadData() {
+      try {
+        const [reportRes, cohortRes] = await Promise.all([
+          fetch('../report.json'),
+          fetch('../query_result.json')
+        ]);
+        if (!reportRes.ok || !cohortRes.ok) {
+          throw new Error('Ensure report.json and query_result.json exist by running ingestion + reports + query commands.');
+        }
+        const report = await reportRes.json();
+        const cohorts = await cohortRes.json();
+        hydrateCounts(report.table_row_counts);
+        hydrateValidations(report.validations);
+        hydrateProducts(report.top_products);
+        hydrateCustomers(report.high_value_customers);
+        hydrateCohorts(cohorts);
+        hydrateAnomalies(report.anomalies);
+      } catch (err) {
+        const panel = document.getElementById('error');
+        panel.style.display = 'block';
+        panel.textContent = err.message;
+        console.error(err);
+      }
+    }
+
+    function hydrateCounts(counts) {
+      const container = document.getElementById('counts-grid');
+      container.innerHTML = '';
+      Object.entries(counts).forEach(([name, value]) => {
+        const card = document.createElement('div');
+        card.innerHTML = `<div class="muted">${name}</div><div style="font-size:1.4rem;font-weight:600;">${value}</div>`;
+        card.classList.add('card');
+        card.style.padding = '1rem';
+        card.style.margin = 0;
+        container.appendChild(card);
+      });
+    }
+
+    function hydrateValidations(validations) {
+      const container = document.getElementById('validations-list');
+      container.innerHTML = '';
+      validations.forEach(check => {
+        const div = document.createElement('div');
+        div.style.display = 'flex';
+        div.style.justifyContent = 'space-between';
+        div.style.padding = '0.35rem 0';
+        div.innerHTML = `
+          <span>${check.check}</span>
+          <span class="pill ${check.status === 'pass' ? 'status-pass' : 'status-warn'}">${check.status} (${check.details})</span>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function hydrateProducts(products) {
+      const body = document.getElementById('products-body');
+      body.innerHTML = '';
+      products.forEach(prod => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${prod.product_id} — ${prod.name}</td><td>$${prod.revenue.toLocaleString()}</td>`;
+        body.appendChild(row);
+      });
+    }
+
+    function hydrateCustomers(customers) {
+      const body = document.getElementById('customers-body');
+      body.innerHTML = '';
+      customers.forEach(cust => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${cust.user_id} — ${cust.name}</td><td>${cust.segment}</td><td>$${cust.revenue.toLocaleString()}</td>`;
+        body.appendChild(row);
+      });
+    }
+
+    function hydrateCohorts(cohorts) {
+      const container = document.getElementById('cohort-list');
+      container.innerHTML = '';
+      cohorts.forEach(cohort => {
+        const div = document.createElement('div');
+        div.className = 'cohort-row';
+        div.innerHTML = `
+          <span><strong>${cohort.cohort_month}</strong> — ${cohort.customers} customers</span>
+          <span>$${cohort.total_revenue.toLocaleString()} · avg order $${cohort.avg_order_value?.toFixed?.(2) ?? 'N/A'}</span>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function hydrateAnomalies(anomalies) {
+      const body = document.getElementById('anomalies-body');
+      body.innerHTML = '';
+      if (!anomalies || anomalies.length === 0) {
+        body.innerHTML = `<tr><td colspan="4" class="muted">No anomalies detected 🎉</td></tr>`;
+        return;
+      }
+      anomalies.forEach(anom => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${anom.order_id}</td>
+          <td>${anom.user_id}</td>
+          <td>${anom.order_status} → ${anom.payment_status}</td>
+          <td>$${(+anom.amount).toFixed(2)}</td>
+        `;
+        body.appendChild(row);
+      });
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
+

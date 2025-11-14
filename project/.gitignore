@@ -1,0 +1,34 @@
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+env/
+venv/
+.venv/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# SQLite DB
+db/*.db
+db/*.db-journal
+
+# Reports and datasets (regenerated)
+users.csv
+products.csv
+orders.csv
+order_items.csv
+payments.csv
+report.md
+report.json
+query_result.csv
+query_result.json
+
+# Logs
+*.log
+
